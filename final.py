@@ -4,24 +4,25 @@
 import pandas as pd
 import geopandas as gpd
 
+
 # Load in data
 geo_data = gpd.read_file('United States Counties.csv')
 food_access = pd.read_excel('access2015.xls', sheet_name='ACCESS')
-stores = pd.read_excel('access2015.xls', sheet_name='STORES')
-restaurants = pd.read_excel('access2015.xls', sheet_name='RESTAURANTS')
-assistance = pd.read_excel('access2015.xls', sheet_name='ASSISTANCE')
-insecurity = pd.read_excel('access2015.xls', sheet_name='INSECURITY')
-health = pd.read_excel('access2015.xls', sheet_name='HEALTH')
-prices = pd.read_excel('access2015.xls', sheet_name='PRICES_TAXES')
-fmarkets = pd.read_excel('access2015.xls', sheet_name='LOCAL')
-socioecon = pd.read_excel('access2015.xls', sheet_name='SOCIOECONOMIC')
-exp_per_cap = pd.read_csv('health_exp_per_capita.csv')
+#stores = pd.read_excel('access2015.xls', sheet_name='STORES')
+#restaurants = pd.read_excel('access2015.xls', sheet_name='RESTAURANTS')
+#assistance = pd.read_excel('access2015.xls', sheet_name='ASSISTANCE')
+#insecurity = pd.read_excel('access2015.xls', sheet_name='INSECURITY')
+#health = pd.read_excel('access2015.xls', sheet_name='HEALTH')
+#prices = pd.read_excel('access2015.xls', sheet_name='PRICES_TAXES')
+#fmarkets = pd.read_excel('access2015.xls', sheet_name='LOCAL')
+#socioecon = pd.read_excel('access2015.xls', sheet_name='SOCIOECONOMIC')
+#exp_per_cap = pd.read_csv('health_exp_per_capita.csv')
 
 # Select rows of interest in food access dataframe
 food_access = food_access[['FIPS', 'State', 'County', 'PCT_LACCESS_POP10',
                            'PCT_LACCESS_LOWI10', 'PCT_LACCESS_CHILD10',
                            'PCT_LACCESS_SENIORS10', 'PCT_LACCESS_HHNV10']]
-
+'''
 # Select rows of interest in stores dataframe
 stores = stores[['FIPS', 'State', 'County', 'PCH_GROC_07_12',
                  'PCH_GROCPTH_07_12', 'PCH_SUPERC_07_12', 'SUPERCPTH07',
@@ -80,10 +81,14 @@ exp_per_cap = exp_per_cap.rename(index=str,
                                           'Y2012': 'H_EXP2012',
                                           'Y2013': 'H_EXP2013',
                                           'Y2014': 'H_EXP2014'})
-
+'''
 # Join data frames with geometry information
+
 geo_data['FIPS formula'] = geo_data['FIPS formula'].astype(str)
 food_access['FIPS'] = food_access['FIPS'].astype(str)
+
 merged = geo_data.merge(food_access, left_on='FIPS formula',
                         right_on='FIPS', how='left')
-merged
+
+
+print(merged)
