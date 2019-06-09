@@ -11,21 +11,25 @@ from shapely import wkt
 geo_data = gpd.read_file('countiesFormatV2.csv')
 food_access = pd.read_excel('access2015.xls', sheet_name='ACCESS')
 food_access = food_access.dropna()
-#stores = pd.read_excel('access2015.xls', sheet_name='STORES')
-#restaurants = pd.read_excel('access2015.xls', sheet_name='RESTAURANTS')
-#assistance = pd.read_excel('access2015.xls', sheet_name='ASSISTANCE')
-#insecurity = pd.read_excel('access2015.xls', sheet_name='INSECURITY')
-#health = pd.read_excel('access2015.xls', sheet_name='HEALTH')
-#prices = pd.read_excel('access2015.xls', sheet_name='PRICES_TAXES')
-#fmarkets = pd.read_excel('access2015.xls', sheet_name='LOCAL')
-#socioecon = pd.read_excel('access2015.xls', sheet_name='SOCIOECONOMIC')
-#exp_per_cap = pd.read_csv('health_exp_per_capita.csv')
+# stores = pd.read_excel('access2015.xls', sheet_name='STORES')
+# restaurants = pd.read_excel('access2015.xls', sheet_name='RESTAURANTS')
+# assistance = pd.read_excel('access2015.xls', sheet_name='ASSISTANCE')
+# insecurity = pd.read_excel('access2015.xls', sheet_name='INSECURITY')
+health = pd.read_excel('access2015.xls', sheet_name='HEALTH')
+health = health.dropna()
+prices = pd.read_excel('access2015.xls', sheet_name='PRICES_TAXES')
+prices = prices.dropna()
+# fmarkets = pd.read_excel('access2015.xls', sheet_name='LOCAL')
+socioecon = pd.read_excel('access2015.xls', sheet_name='SOCIOECONOMIC')
+socioecon = socioecon.dropna()
+socioecon = socioecon[socioecon.POVRATE10 != '<Null>']
+# exp_per_cap = pd.read_csv('health_exp_per_capita.csv')
 
 # Select rows of interest in food access dataframe
 food_access = food_access[['FIPS', 'State', 'County', 'PCT_LACCESS_POP10',
                            'PCT_LACCESS_LOWI10', 'PCT_LACCESS_CHILD10',
-                           'PCT_LACCESS_SENIORS10', 'PCT_LACCESS_HHNV10']]
-'''
+                           'PCT_LACCESS_SENIORS10', 'PCT_LACCESS_HHNV10']] # child
+
 # Select rows of interest in stores dataframe
 stores = stores[['FIPS', 'State', 'County', 'PCH_GROC_07_12',
                  'PCH_GROCPTH_07_12', 'PCH_SUPERC_07_12', 'SUPERCPTH07',
@@ -84,7 +88,7 @@ exp_per_cap = exp_per_cap.rename(index=str,
                                           'Y2012': 'H_EXP2012',
                                           'Y2013': 'H_EXP2013',
                                           'Y2014': 'H_EXP2014'})
-'''
+
 # Join data frames with geometry information
 
 geo_data['GEO_ID'] = geo_data['GEO_ID'].astype(str)
@@ -93,35 +97,38 @@ food_access['FIPS'] = food_access['FIPS'].astype(str)
 merged = geo_data.merge(food_access, left_on='GEO_ID',
                         right_on='FIPS', how='inner')
 
-
-print(merged)
 merged['PCT_LACCESS_LOWI10'] = merged['PCT_LACCESS_LOWI10'].apply(pd.to_numeric)
-merged.plot(column='PCT_LACCESS_LOWI10', figsize=(15, 7), legend=True)
+merged.plot(column='PCT_LACCESS_LOWI10', figsize=(20, 10), legend=True)
+plt.show()
+
+# Merge geo_data and socioeconomic information
+socioecon['FIPS'] = socioecon['FIPS'].astype(str)
+
+merged_2 = geo_data.merge(socioecon, left_on='GEO_ID',
+                          right_on='FIPS', how='inner')
+merged_2['POVRATE10'] = merged_2['POVRATE10'].apply(pd.to_numeric)
+fig, ax = plt.subplots(figsize=(20,10))
+ax.set_ylim([18, 75])
+ax.set_xlim([-170, -55])
+merged_2.plot(column='POVRATE10', legend=True, ax=ax)
+ax.set(title='Poverty Rate by County 2010')
+plt.show()
+
+# Merge geo_data and prices data
+prices['FIPS'] = prices['FIPS'].astype(str)
+
+merged_3 = geo_data.merge(prices, left_on='GEO_ID',
+                          right_on='FIPS', how='inner')
+merged_3['MILK_SODA_PRICE10'] = merged_3['MILK_SODA_PRICE10'].apply(pd.to_numeric)
+merged_3.plot(column='MILK_SODA_PRICE10', figsize=(20, 10), legend=True)
 plt.show()
 
 
+# Merge geo_data and health data
+health['FIPS'] = health['FIPS'].astype(str)
+merged_4 = geo_data.merge(health, left_on='GEO_ID',
+                          right_on='FIPS', how='inner')
+merged_4['PCT_OBESE_CHILD11'] = merged_4['PCT_OBESE_CHILD11'].apply(pd.to_numeric)
 
-
-
-# ignore comments below, they are possible fixes i made notes about
-'''
-# merged = merged.iloc[:, np.r_[1:14, 492:500]]
-
-
-# counties = gpd.read_file('countiesFormatV2.csv')
-# counties['GEO_ID'] = counties['GEO_ID'].astype(str)
-
-
-merged = merged.select_dtypes(['object'])
-merged[merged.columns] = merged.apply(lambda x: x.str.strip())
-
-counties = counties.select_dtypes(['object'])
-counties[counties.columns] = counties.apply(lambda x: x.str.strip())
-
-final = merged.merge(counties, left_on='FIPS',
-                        right_on='GEO_ID', how='inner')
-
-
-counties.plot(column='PCT_LACCESS_LOWI10')
+merged_4.plot(column='PCT_OBESE_CHILD11', figsize=(20, 10), legend=True)
 plt.show()
-'''
