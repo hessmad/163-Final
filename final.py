@@ -5,10 +5,12 @@ import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import numpy as np
+from shapely import wkt
 
 # Load in data
-geo_data = gpd.read_file('United States Counties.csv')
+geo_data = gpd.read_file('countiesFormatV2.csv')
 food_access = pd.read_excel('access2015.xls', sheet_name='ACCESS')
+food_access = food_access.dropna()
 #stores = pd.read_excel('access2015.xls', sheet_name='STORES')
 #restaurants = pd.read_excel('access2015.xls', sheet_name='RESTAURANTS')
 #assistance = pd.read_excel('access2015.xls', sheet_name='ASSISTANCE')
@@ -85,17 +87,41 @@ exp_per_cap = exp_per_cap.rename(index=str,
 '''
 # Join data frames with geometry information
 
-geo_data['FIPS formula'] = geo_data['FIPS formula'].astype(str)
+geo_data['GEO_ID'] = geo_data['GEO_ID'].astype(str)
 food_access['FIPS'] = food_access['FIPS'].astype(str)
 
-merged = geo_data.merge(food_access, left_on='FIPS formula',
+merged = geo_data.merge(food_access, left_on='GEO_ID',
                         right_on='FIPS', how='inner')
 
-merged = merged.iloc[:, np.r_[1:14, 492:500]]
 
-
-merged.plot(column='PCT_LACCESS_POP10', legend=True)
+print(merged)
+merged['PCT_LACCESS_LOWI10'] = merged['PCT_LACCESS_LOWI10'].apply(pd.to_numeric)
+merged.plot(column='PCT_LACCESS_LOWI10', figsize=(15, 7), legend=True)
 plt.show()
 
 
 
+
+
+# ignore comments below, they are possible fixes i made notes about
+'''
+# merged = merged.iloc[:, np.r_[1:14, 492:500]]
+
+
+# counties = gpd.read_file('countiesFormatV2.csv')
+# counties['GEO_ID'] = counties['GEO_ID'].astype(str)
+
+
+merged = merged.select_dtypes(['object'])
+merged[merged.columns] = merged.apply(lambda x: x.str.strip())
+
+counties = counties.select_dtypes(['object'])
+counties[counties.columns] = counties.apply(lambda x: x.str.strip())
+
+final = merged.merge(counties, left_on='FIPS',
+                        right_on='GEO_ID', how='inner')
+
+
+counties.plot(column='PCT_LACCESS_LOWI10')
+plt.show()
+'''
