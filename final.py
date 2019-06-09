@@ -3,7 +3,8 @@
 
 import pandas as pd
 import geopandas as gpd
-
+import matplotlib.pyplot as plt
+import numpy as np
 
 # Load in data
 geo_data = gpd.read_file('United States Counties.csv')
@@ -88,7 +89,13 @@ geo_data['FIPS formula'] = geo_data['FIPS formula'].astype(str)
 food_access['FIPS'] = food_access['FIPS'].astype(str)
 
 merged = geo_data.merge(food_access, left_on='FIPS formula',
-                        right_on='FIPS', how='left')
+                        right_on='FIPS', how='inner')
+
+merged = merged.iloc[:, np.r_[1:14, 492:500]]
 
 
-print(merged)
+merged.plot(column='PCT_LACCESS_POP10', legend=True)
+plt.show()
+
+
+
