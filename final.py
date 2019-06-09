@@ -13,7 +13,8 @@ food_access = pd.read_excel('access2015.xls', sheet_name='ACCESS')
 food_access = food_access.dropna()
 # stores = pd.read_excel('access2015.xls', sheet_name='STORES')
 # restaurants = pd.read_excel('access2015.xls', sheet_name='RESTAURANTS')
-# assistance = pd.read_excel('access2015.xls', sheet_name='ASSISTANCE')
+assistance = pd.read_excel('access2015.xls', sheet_name='ASSISTANCE')
+assistance = assistance.dropna()
 # insecurity = pd.read_excel('access2015.xls', sheet_name='INSECURITY')
 health = pd.read_excel('access2015.xls', sheet_name='HEALTH')
 health = health.dropna()
@@ -107,21 +108,36 @@ socioecon['FIPS'] = socioecon['FIPS'].astype(str)
 merged_2 = geo_data.merge(socioecon, left_on='GEO_ID',
                           right_on='FIPS', how='inner')
 merged_2['POVRATE10'] = merged_2['POVRATE10'].apply(pd.to_numeric)
+
+# Plot pov rate by county
 fig, ax = plt.subplots(figsize=(20,10))
 ax.set_ylim([18, 75])
-ax.set_xlim([-170, -55])
+ax.set_xlim([-170, -65])
 merged_2.plot(column='POVRATE10', legend=True, ax=ax)
 ax.set(title='Poverty Rate by County 2010')
-plt.show()
+plt.savefig('POVRATE10.png')
+
+# Plot poverty persistance by county
+fig, ax = plt.subplots(figsize=(20,10))
+ax.set_ylim([18, 75])
+ax.set_xlim([-170, -65])
+merged_2.plot(column='PERPOV10', legend=True, ax=ax)
+ax.set(title='Persistently Impoverished Counties 2010')
+plt.savefig('PERPOV10.png')
 
 # Merge geo_data and prices data
 prices['FIPS'] = prices['FIPS'].astype(str)
-
 merged_3 = geo_data.merge(prices, left_on='GEO_ID',
                           right_on='FIPS', how='inner')
 merged_3['MILK_SODA_PRICE10'] = merged_3['MILK_SODA_PRICE10'].apply(pd.to_numeric)
-merged_3.plot(column='MILK_SODA_PRICE10', figsize=(20, 10), legend=True)
-plt.show()
+
+# Plot ratio of milk to soda prices
+fig, ax = plt.subplots(figsize=(20,10))
+ax.set_ylim([25, 55])
+ax.set_xlim([-125, -65])
+merged_3.plot(column='MILK_SODA_PRICE10', ax=ax, legend=True)
+ax.set(title='Ratio of the Price of Milk to Soda')
+plt.savefig('MILK_SODA_PRICE10.png')
 
 
 # Merge geo_data and health data
@@ -130,5 +146,49 @@ merged_4 = geo_data.merge(health, left_on='GEO_ID',
                           right_on='FIPS', how='inner')
 merged_4['PCT_OBESE_CHILD11'] = merged_4['PCT_OBESE_CHILD11'].apply(pd.to_numeric)
 
-merged_4.plot(column='PCT_OBESE_CHILD11', figsize=(20, 10), legend=True)
-plt.show()
+# Plot diabetes rate
+fig, ax = plt.subplots(figsize=(20,10))
+ax.set_ylim([25, 55])
+ax.set_xlim([-125, -65])
+merged_4.plot(column='PCT_DIABETES_ADULTS10', ax=ax, legend=True)
+ax.set(title='Adult Diabetes Rate 2010')
+plt.savefig('PCT_DIABETES_ADULTS10.png')
+
+# Plot obesity rate 2010
+fig, ax = plt.subplots(figsize=(20,10))
+ax.set_ylim([25, 55])
+ax.set_xlim([-125, -65])
+merged_4.plot(column='PCT_OBESE_ADULTS10', ax=ax, legend=True)
+ax.set(title='Adult Obesity Rate 2010')
+plt.savefig('PCT_OBESE_ADULTS10.png')
+
+# Plot obesity rate 2013
+fig, ax = plt.subplots(figsize=(20,10))
+ax.set_ylim([25, 55])
+ax.set_xlim([-125, -65])
+merged_4.plot(column='PCT_OBESE_ADULTS13', ax=ax, legend=True)
+ax.set(title='Adult Obesity Rate 2013')
+plt.savefig('PCT_OBESE_ADULTS13.png')
+
+# Plot obesity rate 2013
+fig, ax = plt.subplots(figsize=(20,10))
+ax.set_ylim([25, 55])
+ax.set_xlim([-125, -65])
+merged_4.plot(column='PCH_OBESE_CHILD_08_11', ax=ax, legend=True)
+ax.set(title='Change in Low-Income Preschool Obesity from 2008 to 2011')
+plt.savefig('PCH_OBESE_CHILD_08_11.png')
+
+
+# Merge geo_data and assistance data
+assistance['FIPS'] = assistance['FIPS'].astype(str)
+merged_5 = geo_data.merge(assistance, left_on='GEO_ID',
+                          right_on='FIPS', how='inner')
+merged_5['PCT_SNAP14'] = merged_5['PCT_SNAP14'].apply(pd.to_numeric)
+
+# Plot percent SNAP participants
+fig, ax = plt.subplots(figsize=(20,10))
+ax.set_ylim([18, 75])
+ax.set_xlim([-170, -65])
+merged_5.plot(column='PCT_SNAP14', ax=ax, legend=True)
+ax.set(title='Percent SNAP Participants by County 2014')
+plt.savefig('PCT_SNAP14.png')
